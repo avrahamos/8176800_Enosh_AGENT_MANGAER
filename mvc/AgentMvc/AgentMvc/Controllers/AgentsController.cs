@@ -17,5 +17,17 @@ namespace AgentMvc.Controllers
                 return RedirectToAction("Index","Home");
             }
         }
+        public async Task<IActionResult> Details(int id)
+        {
+            try
+            {
+                var agent = await agentService.Details(id);
+                return View(agent);
+            }
+            catch
+            {
+                return RedirectToAction("Index","Home");
+            }
+        }
     }
 }

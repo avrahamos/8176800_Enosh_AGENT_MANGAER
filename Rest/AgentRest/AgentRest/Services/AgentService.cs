@@ -43,6 +43,16 @@ namespace AgentRest.Services
             return agentModel;
         }
 
+        public async Task<AgentModel> GetAgentByIdAsync(int id)
+        {
+            var agent = await context.Agents.FindAsync(id);
+            if (agent == null)
+            {
+                throw new Exception();
+            }
+            return agent;
+        }
+
         public async Task<List<AgentModel>> GetAllAgentAsync()=> await context.Agents.ToListAsync();
        
 

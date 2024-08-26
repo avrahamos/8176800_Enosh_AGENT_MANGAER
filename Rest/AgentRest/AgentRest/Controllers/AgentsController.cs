@@ -1,6 +1,7 @@
 ﻿using AgentRest.Dto;
 using AgentRest.Models;
 using AgentRest.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -64,6 +65,20 @@ namespace AgentRest.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        [HttpGet("GetById/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> GetAgentById(int id)
+        {
+            try
+            {
+                var agent = await agentService.GetAgentByIdAsync(id);
+                return Ok(agent);
+            }
+            catch
+            {
+                return NotFound();
+            }
+        }
     }
 }
