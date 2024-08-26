@@ -4473,11 +4473,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\rd314\\source\\repos\\Agent\\Rest\\AgentRest\\AgentRest\\AgentRest.csproj",
+      "projectUniqueName": "C:\\Users\\rd314\\source\\repos\\8176800_Enosh_AGENT_MANGAER\\Rest\\AgentRest\\AgentRest\\AgentRest.csproj",
       "projectName": "AgentRest",
-      "projectPath": "C:\\Users\\rd314\\source\\repos\\Agent\\Rest\\AgentRest\\AgentRest\\AgentRest.csproj",
+      "projectPath": "C:\\Users\\rd314\\source\\repos\\8176800_Enosh_AGENT_MANGAER\\Rest\\AgentRest\\AgentRest\\AgentRest.csproj",
       "packagesPath": "C:\\Users\\rd314\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\rd314\\source\\repos\\Agent\\Rest\\AgentRest\\AgentRest\\obj\\",
+      "outputPath": "C:\\Users\\rd314\\source\\repos\\8176800_Enosh_AGENT_MANGAER\\Rest\\AgentRest\\AgentRest\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

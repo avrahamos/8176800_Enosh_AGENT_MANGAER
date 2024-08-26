@@ -1,0 +1,10 @@
+﻿@model AgentMvc.ViewModel.DashboardViewModel;
+<h2>Dashboard</h2>
+
+<div>
+    <p>Total Agents: @Model.TotalAgents (Active: @Model.ActiveAgents)</p>
+    <p>Total Targets: @Model.TotalTargets (Eliminated: @Model.EliminatedTargets)</p>
+    <p>Total Missions: @Model.TotalMissions (Active: @Model.ActiveMissions)</p>
+    <p>Agent to Target Ratio: @Model.AgentToTargetRatio.ToString("F2")</p>
+    <p>Available Agent to Target Ratio: @Model.AvailableAgentToTargetRatio.ToString("F2")</p>
+</div>

@@ -43,13 +43,23 @@ namespace AgentRest.Services
         public async Task<MissionModel> CommandmentToMissionAsync(int id)
         {
             var dbContext = await dbContextFactory.CreateDbContextAsync();
-            MissionModel? mission = await dbContext.Missions.FindAsync(id);
+            var mission = await dbContext.Missions
+         .Include(m => m.Agent)
+         .Include(m => m.Target)
+         .FirstOrDefaultAsync(m => m.Id == id);
+
 
             AgentModel? agent = await dbContext.Agents.FindAsync(mission?.AgentID);
             var agentInMission = dbContext.Missions.Where(x => x.AgentID == agent.Id && x.StatusMission == MissionStatus.Assigned).ToList();
-            if (agentInMission.Any()) { throw new Exception($"The agent on the id {id} is already in action"); }
+            if (agentInMission.Any())
+            { 
+                throw new Exception($"The agent on the id {id} is already in action");
+            }
             var tergetInmission = dbContext.Missions.Where(x => x.TargetId == mission.TargetId && x.StatusMission == MissionStatus.Assigned).ToList();
-            if (tergetInmission.Any()) { throw new Exception($"The target on the id {id} is already in action"); }
+            if (tergetInmission.Any()) 
+            { 
+                throw new Exception($"The target on the id {id} is already in action"); 
+            }
 
             if (agent == null || mission == null) { throw new Exception($"not find by id {id}"); }
             agent.StatusAgent = StatusAgent.IsActive;
@@ -110,16 +120,12 @@ namespace AgentRest.Services
 
                 var ifExistsAMission = dbContext.Missions.Any(x => x.TargetId == targetModel.Id && x.AgentID == agent.Id);
 
-                // שולח לבדיקה מה המרחק בין המטרה לסוכן
                 var distance =Calculate.DistanceCalculation(xA, yA, xT, yT);
 
-                // מביא את כל המשימות ש הסוכן נמצאת בהם
                 var agentsInMission = dbContext.Missions.Where(x => x.AgentID == agent.Id).ToList();
 
-                // ואז מסנן ומביא רשימה רק עם המשימות הפעילות 
                 agentsInMission = agentsInMission.Where(x => x.StatusMission == MissionStatus.Assigned).ToList();
 
-                // פה אני בודק האם הסוכן נמצאת ברדיוס שאפשר להציע משימה לסוכן ו שהרשימה רייקה שזה אומר שאין משימות פעילות של הסוכן שלי
                 if (distance <= 200 && !agentsInMission.Any() && !ifExistsAMission)
                 {
                     MissionModel newModel = new()
@@ -175,12 +181,10 @@ namespace AgentRest.Services
         public async void IfMissionIsRrelevantAsync()
         {
             var dbContext = await dbContextFactory.CreateDbContextAsync();
-            // מביא את כל ההצעות למשימה
             var MissionOffer = dbContext.Missions.Where(x => x.StatusMission == MissionStatus.Proposed).ToList();
 
             foreach (var mission in MissionOffer)
             {
-                // ובודק האם זה עדין רלוונטי
                 TargetModel? target = await dbContext.Targets.FindAsync(mission.TargetId);
                 AgentModel? agent = await dbContext.Agents.FindAsync(mission.AgentID);
 
@@ -192,7 +196,48 @@ namespace AgentRest.Services
                 }
             }
         }
+        public async Task<MissionModel> CreateAndAssignMissionAsync(int agentId, int targetId)
+        {
+            var context = await dbContextFactory.CreateDbContextAsync();
+            var agent = await context.Agents.FindAsync(agentId);
+            var target = await context.Targets.FindAsync(targetId);
 
-      
+            if (agent == null)
+                throw new Exception($"Agent with id {agentId} not found");
+            if (target == null)
+                throw new Exception($"Target with id {targetId} not found");
+
+            if (agent.StatusAgent != StatusAgent.IsNnotActive)
+                throw new Exception($"Agent {agent.NickName} is not available for assignment");
+
+            if (target.StatusTarget != StatusTarget.Live)
+                throw new Exception($"Target {target.Name} is not available for assignment");
+
+            double distance = Calculate.DistanceCalculation(agent.X, agent.Y, target.x, target.y);
+            if (distance > 200) 
+                throw new Exception("Agent and target are not within range for assignment");
+
+            var mission = new MissionModel
+            {
+                AgentID = agentId,
+                TargetId = targetId,
+                StatusMission = MissionStatus.Assigned,
+                TimeRemaining = distance / 5, 
+                ActualExecutionTime = 0,
+                Agent = agent,
+                Target = target
+            };
+
+            agent.StatusAgent = StatusAgent.IsActive;
+            target.StatusTarget = StatusTarget.Live;
+
+            context.Missions.Add(mission);
+
+            await context.SaveChangesAsync();
+
+            return mission;
+        }
+
+
     }
 }

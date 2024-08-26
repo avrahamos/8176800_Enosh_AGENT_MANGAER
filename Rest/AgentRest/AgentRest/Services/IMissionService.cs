@@ -13,7 +13,7 @@ namespace AgentRest.Services
 
         Task<List<MissionModel>> GetAllMissionAsync();
         Task<MissionModel> CommandmentToMissionAsync(int id);
-
+        Task<MissionModel> CreateAndAssignMissionAsync(int agentId, int targetId);
         Task<List<MissionDto>> GetAllAsync();
     }
 }

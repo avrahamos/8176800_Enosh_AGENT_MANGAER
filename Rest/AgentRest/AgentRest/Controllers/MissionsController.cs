@@ -1,4 +1,5 @@
-﻿using AgentRest.Models;
+﻿using AgentRest.Dto;
+using AgentRest.Models;
 using AgentRest.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,5 +45,20 @@ namespace AgentRest.Controllers
         public async Task<ActionResult> GetAll() =>
             Ok(await missionService.GetAllAsync());
 
+        [HttpPost("assign")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> AssignMission([FromBody] MissionDto dto)
+        {
+            try
+            {
+                var mission = await missionService.CreateAndAssignMissionAsync(dto.AgentID , dto.TargetId);
+                return Ok(mission);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
