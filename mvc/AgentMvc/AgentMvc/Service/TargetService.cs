@@ -6,7 +6,7 @@ namespace AgentMvc.Service
     public class TargetService(IHttpClientFactory clientFactory) : ITargetService
     {
         private readonly string baseUrl = "https://localhost:7117";
-        public async Task<List<TargetModel>> GetAllTaretsAsyncTargets()
+        public async Task<List<TargetModel>> GetAllTaretsAsync()
         {
            var httpClient = clientFactory.CreateClient();
             var request = new HttpRequestMessage(HttpMethod.Get, $"{baseUrl}/Targets");

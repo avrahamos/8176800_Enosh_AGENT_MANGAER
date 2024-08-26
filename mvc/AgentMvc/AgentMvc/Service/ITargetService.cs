@@ -4,6 +4,6 @@ namespace AgentMvc.Service
 {
     public interface ITargetService
     {
-        Task<List<TargetModel>> GetAllTaretsAsyncTargets();
+        Task<List<TargetModel>> GetAllTaretsAsync();
     }
 }
