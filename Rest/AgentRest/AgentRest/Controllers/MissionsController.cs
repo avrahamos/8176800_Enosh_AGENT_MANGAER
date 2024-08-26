@@ -23,6 +23,7 @@ namespace AgentRest.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> GetAllMission() =>
             Ok(await missionService.GetAllMissionAsync());
+
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -58,6 +59,21 @@ namespace AgentRest.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("GetById /{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> GetMissionById(int id)
+        {
+            try
+            {
+                var mission = await missionService.GetMissionByIdAsinc(id);
+                return Ok(mission);
+            }
+            catch 
+            {
+                return NotFound();
             }
         }
     }

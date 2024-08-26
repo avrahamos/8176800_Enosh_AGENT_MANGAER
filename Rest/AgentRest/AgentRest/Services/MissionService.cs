@@ -238,6 +238,15 @@ namespace AgentRest.Services
             return mission;
         }
 
-
+        public async Task<MissionModel> GetMissionByIdAsinc(int id)
+        {
+            var context = await dbContextFactory.CreateDbContextAsync();
+            var mission = await context.Missions.FindAsync(id);
+            if (mission == null)
+            {
+                throw new KeyNotFoundException($"Mission with id {id} does not found");
+            }
+            return mission;
+        }
     }
 }

@@ -15,6 +15,7 @@ namespace AgentMvc
             builder.Services.AddScoped<ITargetService , TargetService>();
             builder.Services.AddScoped<IMissionService , MissionService>();
             builder.Services.AddScoped<IDashboardService , DashboardService>();
+            
 
             var app = builder.Build();
 

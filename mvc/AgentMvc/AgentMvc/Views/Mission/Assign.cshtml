@@ -1,0 +1,20 @@
+﻿@model AgentMvc.Models.MissionModel
+
+<h2>Assign Mission</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Agent:</dt>
+    <dd class="col-sm-9">@Model.Agent?.NickName</dd>
+
+    <dt class="col-sm-3">Target:</dt>
+    <dd class="col-sm-9">@Model.Target?.Name</dd>
+
+    <dt class="col-sm-3">Time to Kill:</dt>
+    <dd class="col-sm-9">@Model.TimeRemaining</dd>
+</dl>
+
+<form asp-action="ConfirmAssign" asp-route-id="@Model.Id" method="post">
+    <button type="submit" class="btn btn-success">Confirm Assignment</button>
+</form>
+
+<a asp-action="Index" class="btn btn-secondary">Cancel</a>

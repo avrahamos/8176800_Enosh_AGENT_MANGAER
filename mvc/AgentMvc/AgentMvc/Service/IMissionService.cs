@@ -5,7 +5,9 @@ namespace AgentMvc.Service
     public interface IMissionService
     {
         Task<List<MissionModel>> GetAllMissionsAsync();
-        Task AssignMissionAsync(int agentId, int targetId);
-
+        Task AgentsPursuitAsync();
+        Task<MissionModel?> CommandmentToMissionAsync(int id);
+        Task<MissionModel?> CreateAndAssignMissionAsync(int agentId, int targetId);
+        Task<MissionModel?> GetMissionByIdAsync(int id);
     }
 }

@@ -1,65 +1,65 @@
 ﻿@model IEnumerable<AgentMvc.Models.MissionModel>
-
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Missions";
 }
 
-<h1>Index</h1>
+<h1>Missions</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<form asp-action="UpdateMissions" method="post">
+    <button type="submit" class="btn btn-secondary mb-3">Update Missions</button>
+</form>
+
+<h3>Proposed Missions</h3>
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AgentID)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TargetId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TimeRemaining)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ActualExecutionTime)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StatusMission)
-            </th>
-            <th></th>
+            <th>Agent</th>
+            <th>Target</th>
+            <th>Time Remaining</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AgentID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TargetId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TimeRemaining)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ActualExecutionTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StatusMission)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
-}
+        @foreach (var item in Model.Where(m => m.StatusMission == AgentMvc.Models.MissionStatus.Proposed))
+        {
+            <tr>
+                <td>@item.AgentID</td>
+                <td>@item.TargetId</td>
+                <td>@item.TimeRemaining</td>
+                <td>
+                    <a asp-action="Assign" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Assign</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+<h3>Active Missions</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Agent</th>
+            <th>Target</th>
+            <th>Time Remaining</th>
+            <th>Actual Execution Time</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Where(m => m.StatusMission != AgentMvc.Models.MissionStatus.Proposed))
+        {
+            <tr>
+                <td>@item.AgentID</td>
+                <td>@item.TargetId</td>
+                <td>@item.TimeRemaining</td>
+                <td>@item.ActualExecutionTime</td>
+                <td>@item.StatusMission</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <p>No missions available.</p>
+}
