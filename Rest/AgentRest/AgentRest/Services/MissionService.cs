@@ -11,14 +11,15 @@ namespace AgentRest.Services
     {
         public async Task AgentsPursuitAsync()
         {
-            var dbContext = await dbContextFactory.CreateDbContextAsync();
-            var missions = dbContext.Missions.Where(x => x.StatusMission == MissionStatus.Assigned).ToList();
+            var context = await dbContextFactory.CreateDbContextAsync();
+            var missions = context.Missions.Where(x => x.StatusMission == MissionStatus.Proposed).ToList();
             foreach (var mission in missions)
             {
-                TargetModel? target = await dbContext.Targets.FindAsync(mission.TargetId);
-                AgentModel? agent = await dbContext.Agents.FindAsync(mission.AgentID);
+                TargetModel? target = await context.Targets.FindAsync(mission.TargetId);
+                AgentModel? agent = await context.Agents.FindAsync(mission.AgentID);
                 if (target != null && agent != null)
                 {
+                    //Compares the positions of the agent and the target and moves the agent towards the target
                     agent.X = target.x > agent.X ? agent.X + 1 : agent.X;
                     agent.Y = target.y > agent.Y ? agent.Y + 1 : agent.Y;
                     agent.X = target.x < agent.X ? agent.X - 1 : agent.X;
@@ -33,7 +34,7 @@ namespace AgentRest.Services
                     var IfDirectionInRange =Calculate.IsInRange1000(agent.X, agent.Y);
                     if (!IfDirectionInRange) { throw new Exception($"Locations out of range of the clipboard"); }
                     mission.TimeRemaining =Calculate.DistanceCalculation(agent.X, agent.Y, target.x, target.y) / 5;
-                    await dbContext.SaveChangesAsync();
+                    await context.SaveChangesAsync();
                 }
 
             }
@@ -42,20 +43,22 @@ namespace AgentRest.Services
 
         public async Task<MissionModel> CommandmentToMissionAsync(int id)
         {
-            var dbContext = await dbContextFactory.CreateDbContextAsync();
-            var mission = await dbContext.Missions
+            var context = await dbContextFactory.CreateDbContextAsync();
+            var mission = await context.Missions
          .Include(m => m.Agent)
          .Include(m => m.Target)
          .FirstOrDefaultAsync(m => m.Id == id);
 
-
-            AgentModel? agent = await dbContext.Agents.FindAsync(mission?.AgentID);
-            var agentInMission = dbContext.Missions.Where(x => x.AgentID == agent.Id && x.StatusMission == MissionStatus.Assigned).ToList();
+            //Find the agent of the current mission
+            AgentModel? agent = await context.Agents.FindAsync(mission?.AgentID);
+            //Checking if the agent is already assigned to another mission
+            var agentInMission = context.Missions.Where(x => x.AgentID == agent.Id && x.StatusMission == MissionStatus.Assigned).ToList();
             if (agentInMission.Any())
             { 
                 throw new Exception($"The agent on the id {id} is already in action");
             }
-            var tergetInmission = dbContext.Missions.Where(x => x.TargetId == mission.TargetId && x.StatusMission == MissionStatus.Assigned).ToList();
+            //Checking whether the target is already assigned to another mission
+            var tergetInmission = context.Missions.Where(x => x.TargetId == mission.TargetId && x.StatusMission == MissionStatus.Assigned).ToList();
             if (tergetInmission.Any()) 
             { 
                 throw new Exception($"The target on the id {id} is already in action"); 
@@ -64,15 +67,15 @@ namespace AgentRest.Services
             if (agent == null || mission == null) { throw new Exception($"not find by id {id}"); }
             agent.StatusAgent = StatusAgent.IsActive;
             mission.StatusMission = MissionStatus.Assigned;
-            await dbContext.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return mission;
 
         }
 
         public async void CreateMissionByAgentAsync(AgentModel agentModel)
         {
-            var dbContext = await dbContextFactory.CreateDbContextAsync();
-            var targetlive = dbContext.Targets.Where(x => x.StatusTarget == StatusTarget.Live).ToList();
+            var context = await dbContextFactory.CreateDbContextAsync();
+            var targetlive = context.Targets.Where(x => x.StatusTarget == StatusTarget.Live).ToList();
 
 
             foreach (var target in targetlive)
@@ -81,11 +84,12 @@ namespace AgentRest.Services
                 int xT = target.x;
                 int yA = agentModel.Y;
                 int yT = target.y;
-
-                var ifExistsAMission = dbContext.Missions.Any(x => x.TargetId == target.Id && x.AgentID == agentModel.Id);
+                //Checking if a mission already exists for the agent and target
+                var ifExistsAMission = context.Missions.Any(x => x.TargetId == target.Id && x.AgentID == agentModel.Id);
+                //Calculating the distance between the agent and the target
                 var distance =Calculate.DistanceCalculation(xA, yA, xT, yT);
-
-                var targetInMission = dbContext.Missions.Where(x => x.TargetId == target.Id).ToList();
+                //Checking if the target is already assigned to an active mission
+                var targetInMission = context.Missions.Where(x => x.TargetId == target.Id).ToList();
 
                 targetInMission = targetInMission.Where(x => x.StatusMission == MissionStatus.Assigned).ToList();
 
@@ -98,8 +102,8 @@ namespace AgentRest.Services
                         TimeRemaining = distance / 5,
                         StatusMission = MissionStatus.Proposed,
                     };
-                    await dbContext.AddAsync(newModel);
-                    await dbContext.SaveChangesAsync();
+                    await context.AddAsync(newModel);
+                    await context.SaveChangesAsync();
                 }
             }
 
@@ -144,14 +148,14 @@ namespace AgentRest.Services
 
         public async Task<List<MissionModel>> GetAllMissionAsync()
         {
-            var db = await dbContextFactory.CreateDbContextAsync();
-            return await db.Missions.ToListAsync();
+            var context = await dbContextFactory.CreateDbContextAsync();
+            return await context.Missions.ToListAsync();
         }
 
         public async Task<List<MissionDto>> GetAllAsync()
         {
-            var dbContext = await dbContextFactory.CreateDbContextAsync();
-            var a = await dbContext.Missions.Include(x => x.Agent).Include(x => x.Target).ToListAsync();
+            var context = await dbContextFactory.CreateDbContextAsync();
+            var a = await context.Missions.Include(x => x.Agent).Include(x => x.Target).ToListAsync();
             List<MissionDto> missions = new List<MissionDto>();
             foreach (MissionModel mission in a)
             {

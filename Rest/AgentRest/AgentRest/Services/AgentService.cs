@@ -58,18 +58,22 @@ namespace AgentRest.Services
 
         public async Task<AgentModel> MoveAgentAsync(DirectionDto directionDto, int id)
         {
+            // Checking whether the agent exists in the DB
             var agentModel = await context.Agents.FirstOrDefaultAsync(x => x.Id == id);
             if (agentModel == null) { throw new Exception($"not find Agent by id {id}"); }
             if (agentModel.StatusAgent == StatusAgent.IsNnotActive)
             {
-                var a = xy.TryGetValue(directionDto.Diretion, out var risult);
+                // Checking whether the received value exists in the dictionary
+                var a = xy.TryGetValue(directionDto.Diretion, out var result);
                 if (!a) { throw new Exception($"The direction '{directionDto.Diretion}' is not correct"); }
-                var (x, y) = risult;
+                var (x, y) = result;
+                //Checking whether there is no deviation from the defined area (1000 km)
                 var IfDirectionInRange = IsInRange1000(agentModel.X += x, agentModel.Y += y);
                 if (!IfDirectionInRange) { throw new Exception($"Locations out of range of the clipboard"); }
                 agentModel.X += x;
                 agentModel.Y += y;
                 await context.SaveChangesAsync();
+                //Sends to check whether there are suitable goals for the new agent and if so creates a mission proposal
                 missionService.CreateMissionByAgentAsync(agentModel);
                 missionService.IfMissionIsRrelevantAsync();
 
